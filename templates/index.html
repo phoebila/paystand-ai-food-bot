@@ -4,47 +4,104 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>AI Meal Planner</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <link rel="stylesheet" href="../static/style.css" />
 </head>
 <body>
   <div class="container">
-    <h1>AI Fridge Scanner</h1>
-    <form id="uploadForm" enctype="multipart/form-data">
-      <input type="file" name="image" accept="image/*" required />
-      <button type="submit">Scan Fridge</button>
+    <h1>AI Meal Planner</h1>
+    <form id="ingredientForm">
+      <input type="text" name="ingredients" placeholder="Enter ingredients (comma-separated)" required />
+      <button type="submit">Generate Meal Plan</button>
     </form>
 
-    <div id="output"></div>
+    <div id="loading-bar-container">
+      <div id="loading-bar"></div>
+    </div>
+
+    <div id="output">
+      <h3>Detected Ingredients:</h3>
+      <p id="ingredients"></p>
+
+      <h3>Recipes:</h3>
+      <ul id="recipes"></ul>
+
+      <h3>AI Weekly Meal Plan:</h3>
+      <pre id="summary"></pre>
+
+      <h3>Smart Grocery List:</h3>
+      <ul id="grocery-list"></ul>
+    </div>
   </div>
 
   <script>
-    const form = document.getElementById("uploadForm");
+    const form = document.getElementById("ingredientForm");
+    const ingredientsEl = document.getElementById("ingredients");
+    const recipesEl = document.getElementById("recipes");
+    const summaryEl = document.getElementById("summary");
+    const groceryEl = document.getElementById("grocery-list");
+    const loadingBarContainer = document.getElementById("loading-bar-container");
+    const loadingBar = document.getElementById("loading-bar");
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const formData = new FormData(form);
-      const res = await fetch("/upload", { method: "POST", body: formData });
-      const data = await res.json();
+      const ingredientsInput = formData.get("ingredients");
 
-      const output = document.getElementById("output");
-      output.innerHTML = `
-        <h3>Detected Ingredients:</h3>
-        <p>${data.ingredients.join(", ")}</p>
-        <h3>Recipes:</h3>
-        <ul>
-          ${data.recipes
-            .map(
-              (r) => `
-              <li>
-                <img src="${r.image}" width="100"/>
-                <a href="https://spoonacular.com/recipes/${r.title.replace(
-                  / /g,
-                  "-"
-                )}-${r.id}" target="_blank">${r.title}</a>
-              </li>`
-            )
-            .join("")}
-        </ul>
-      `;
+      ingredientsEl.textContent = "";
+      recipesEl.innerHTML = "";
+      summaryEl.textContent = "";
+      groceryEl.innerHTML = "";
+      loadingBar.style.width = "0%";
+      loadingBarContainer.style.display = "block";
+
+      let width = 0;
+      const interval = setInterval(() => {
+        if (width < 90) {
+          width += Math.random() * 5;
+          loadingBar.style.width = width + "%";
+        }
+      }, 300);
+
+      try {
+        const res = await fetch("/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ingredients: ingredientsInput }),
+        });
+
+        const data = await res.json();
+        clearInterval(interval);
+        loadingBar.style.width = "100%";
+
+        ingredientsEl.textContent = data.ingredients.join(", ");
+
+        recipesEl.innerHTML = data.recipes
+          .map(
+            (r) => `
+          <li>
+            <a href="${r.link}" target="_blank">
+              <img src="${r.image}" alt="${r.title}" width="100">
+              <p>${r.title}</p>
+            </a>
+          </li>`
+          )
+          .join("");
+
+        summaryEl.textContent = data.summary;
+
+        groceryEl.innerHTML = data.grocery_list
+          .map((i) => `<li>${i}</li>`)
+          .join("");
+
+        setTimeout(() => {
+          loadingBarContainer.style.display = "none";
+        }, 500);
+      } catch (err) {
+        clearInterval(interval);
+        loadingBarContainer.style.display = "none";
+        ingredientsEl.textContent = "Error generating meal plan.";
+        console.error(err);
+      }
     });
   </script>
 </body>

@@ -1,6 +1,23 @@
-flask==3.0.3
-werkzeug==3.0.3
-requests
-ultralytics
-openai
-python-dotenv
+# Flask web server
+Flask>=2.3.2
+
+# Environment variable loader
+python-dotenv>=1.0.0
+
+# Requests for API calls
+requests>=2.31.0
+
+# PyTorch (CPU only)
+torch>=2.1.0+cpu
+torchvision>=0.16.1+cpu
+torchaudio>=2.1.0+cpu
+-f https://download.pytorch.org/whl/cpu/torch_stable.html
+
+# Transformers for FLAN-T5
+transformers>=4.40.2
+
+# YOLOv8 (Ultralytics)
+ultralytics>=8.0.200
+
+# OpenCV for image handling
+opencv-python>=4.8.1
