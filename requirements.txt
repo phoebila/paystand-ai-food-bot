@@ -1,0 +1,6 @@
+flask==3.0.3
+werkzeug==3.0.3
+requests
+ultralytics
+openai
+python-dotenv

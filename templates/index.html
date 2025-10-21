@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Meal Planner</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <div class="container">
+    <h1>AI Fridge Scanner</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <input type="file" name="image" accept="image/*" required />
+      <button type="submit">Scan Fridge</button>
+    </form>
+
+    <div id="output"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById("uploadForm");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const res = await fetch("/upload", { method: "POST", body: formData });
+      const data = await res.json();
+
+      const output = document.getElementById("output");
+      output.innerHTML = `
+        <h3>Detected Ingredients:</h3>
+        <p>${data.ingredients.join(", ")}</p>
+        <h3>Recipes:</h3>
+        <ul>
+          ${data.recipes
+            .map(
+              (r) => `
+              <li>
+                <img src="${r.image}" width="100"/>
+                <a href="https://spoonacular.com/recipes/${r.title.replace(
+                  / /g,
+                  "-"
+                )}-${r.id}" target="_blank">${r.title}</a>
+              </li>`
+            )
+            .join("")}
+        </ul>
+      `;
+    });
+  </script>
+</body>
+</html>
