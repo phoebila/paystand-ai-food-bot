@@ -1,66 +1,139 @@
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", sans-serif;
+}
+
 body {
-  font-family: Arial, sans-serif;
-  background-color: #fefefe;
-  color: #333;
-  padding: 20px;
+  background: #f5f7fa;
+  color: #222;
+  min-height: 100vh;
+  padding: 2rem;
 }
 
 .container {
-  max-width: 800px;
+  max-width: 1200px;
   margin: auto;
 }
 
-input, button {
+h1 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #2b3a55;
+}
+
+form {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+input {
+  width: 60%;
   padding: 10px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
   font-size: 1rem;
 }
 
 button {
-  cursor: pointer;
-  background-color: #4CAF50;
-  color: white;
+  padding: 10px 20px;
   border: none;
-  margin-left: 10px;
-}
-
-ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-}
-
-li {
-  margin: 10px;
-  text-align: center;
-  width: 150px;
-}
-
-li img {
-  width: 100%;
+  background: #3b82f6;
+  color: white;
+  font-weight: bold;
   border-radius: 8px;
+  cursor: pointer;
 }
 
-pre {
-  background-color: #eee;
-  padding: 15px;
-  border-radius: 8px;
-  overflow-x: auto;
+button:hover {
+  background: #2563eb;
 }
 
-/* Loading Bar */
+/* Loading bar */
 #loading-bar-container {
-  width: 100%;
-  background-color: #ddd;
+  width: 80%;
+  height: 8px;
+  background: #e0e0e0;
   border-radius: 8px;
-  margin: 10px 0;
-  display: none; /* hidden initially */
+  overflow: hidden;
+  margin: 0 auto 2rem auto;
+  display: none;
 }
 
 #loading-bar {
+  height: 100%;
   width: 0%;
-  height: 20px;
-  background-color: #4CAF50;
+  background: #3b82f6;
+  transition: width 0.3s ease;
+}
+
+/* Two-column layout */
+#results {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.column {
+  background: #fff;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.column h2 {
+  margin-bottom: 1rem;
+  color: #334155;
+  border-bottom: 2px solid #e5e7eb;
+  padding-bottom: 0.5rem;
+}
+
+/* Recipes */
+#recipes {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+#recipes li {
+  text-align: center;
+  background: #fafafa;
+  border-radius: 10px;
+  padding: 10px;
+  transition: transform 0.2s;
+}
+
+#recipes li:hover {
+  transform: scale(1.03);
+}
+
+#recipes img {
+  width: 100%;
   border-radius: 8px;
-  transition: width 0.2s ease;
+  object-fit: cover;
+}
+
+#recipes p {
+  margin-top: 0.5rem;
+  font-weight: 600;
+}
+
+/* Grocery List */
+#grocery-list {
+  list-style: disc inside;
+  line-height: 1.6;
+}
+
+pre {
+  white-space: pre-wrap;
+  line-height: 1.5;
+  background: #f9fafb;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 0.95rem;
 }

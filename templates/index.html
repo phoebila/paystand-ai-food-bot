@@ -1,64 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AI Meal Planner</title>
-  <link rel="stylesheet" href="../static/style.css" />
+  <link rel="stylesheet" href="../static/style.css">
 </head>
 <body>
   <div class="container">
-    <h1>AI Meal Planner</h1>
+    <h1>🥗 AI Meal Planner</h1>
     <form id="ingredientForm">
-      <input type="text" name="ingredients" placeholder="Enter ingredients (comma-separated)" required />
-      <button type="submit">Generate Meal Plan</button>
+      <input type="text" name="ingredients" placeholder="Enter ingredients (comma-separated)" required>
+      <button type="submit">Generate Plan</button>
     </form>
 
     <div id="loading-bar-container">
       <div id="loading-bar"></div>
     </div>
 
-    <div id="output">
-      <h3>Detected Ingredients:</h3>
-      <p id="ingredients"></p>
+    <div id="results">
+      <!-- Left column: Recipes -->
+      <div class="column" id="recipes-column">
+        <h2>🍳 Recipes</h2>
+        <ul id="recipes"></ul>
+      </div>
 
-      <h3>Recipes:</h3>
-      <ul id="recipes"></ul>
+      <!-- Right column: AI summary and grocery list -->
+      <div class="column" id="ai-column">
+        <h2>🧠 AI Weekly Meal Plan</h2>
+        <pre id="summary"></pre>
 
-      <h3>AI Weekly Meal Plan:</h3>
-      <pre id="summary"></pre>
-
-      <h3>Smart Grocery List:</h3>
-      <ul id="grocery-list"></ul>
+        <h2>🛒 Smart Grocery List</h2>
+        <ul id="grocery-list"></ul>
+      </div>
     </div>
   </div>
 
   <script>
     const form = document.getElementById("ingredientForm");
-    const ingredientsEl = document.getElementById("ingredients");
     const recipesEl = document.getElementById("recipes");
     const summaryEl = document.getElementById("summary");
-    const groceryEl = document.getElementById("grocery-list");
-    const loadingBarContainer = document.getElementById("loading-bar-container");
+    const groceryListEl = document.getElementById("grocery-list");
     const loadingBar = document.getElementById("loading-bar");
+    const loadingBarContainer = document.getElementById("loading-bar-container");
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const formData = new FormData(form);
-      const ingredientsInput = formData.get("ingredients");
+      const ingredients = form.ingredients.value.trim();
 
-      ingredientsEl.textContent = "";
+      if (!ingredients) return;
+
+      // Reset outputs
       recipesEl.innerHTML = "";
       summaryEl.textContent = "";
-      groceryEl.innerHTML = "";
+      groceryListEl.innerHTML = "";
       loadingBar.style.width = "0%";
       loadingBarContainer.style.display = "block";
 
-      let width = 0;
-      const interval = setInterval(() => {
-        if (width < 90) {
-          width += Math.random() * 5;
-          loadingBar.style.width = width + "%";
+      let progress = 0;
+      const loading = setInterval(() => {
+        if (progress < 90) {
+          progress += Math.random() * 5;
+          loadingBar.style.width = progress + "%";
         }
       }, 300);
 
@@ -66,40 +69,37 @@
         const res = await fetch("/generate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ingredients: ingredientsInput }),
+          body: JSON.stringify({ ingredients })
         });
 
         const data = await res.json();
-        clearInterval(interval);
+        clearInterval(loading);
         loadingBar.style.width = "100%";
 
-        ingredientsEl.textContent = data.ingredients.join(", ");
-
-        recipesEl.innerHTML = data.recipes
-          .map(
-            (r) => `
+        // Recipes
+        recipesEl.innerHTML = data.recipes.map(r => `
           <li>
             <a href="${r.link}" target="_blank">
-              <img src="${r.image}" alt="${r.title}" width="100">
+              <img src="${r.image}" alt="${r.title}">
               <p>${r.title}</p>
             </a>
-          </li>`
-          )
-          .join("");
+          </li>
+        `).join("");
 
+        // Summary
         summaryEl.textContent = data.summary;
 
-        groceryEl.innerHTML = data.grocery_list
-          .map((i) => `<li>${i}</li>`)
-          .join("");
+        // Grocery list
+        groceryListEl.innerHTML = data.grocery_list.map(i => `<li>${i}</li>`).join("");
 
         setTimeout(() => {
           loadingBarContainer.style.display = "none";
         }, 500);
+
       } catch (err) {
-        clearInterval(interval);
+        clearInterval(loading);
         loadingBarContainer.style.display = "none";
-        ingredientsEl.textContent = "Error generating meal plan.";
+        summaryEl.textContent = "Error generating meal plan.";
         console.error(err);
       }
     });
