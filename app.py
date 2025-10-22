@@ -1,3 +1,8 @@
+# app.py
+# Phoebe Royer
+# 2025-10-21
+# AI-Powered Meal Planner and Grocery List Generator for PayStand
+
 from flask import Flask, render_template, request, jsonify
 import requests
 from transformers import pipeline
@@ -35,7 +40,7 @@ def fetch_recipes(ingredients):
             seen.add(r["title"])
             unique_recipes.append(r)
 
-    return unique_recipes[:15]  # max 15 recipes
+    return unique_recipes[:15]  # max 15 recipes, keep things short
 
 # ----------------- Fetch full recipe details -----------------
 def fetch_meal_details(meal_id):
